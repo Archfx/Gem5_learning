@@ -1,5 +1,8 @@
 import m5
 from m5.objects import *
+from caches import *
+
+
 
 def connectCPUSideBus(self, bus):
     self.cpu_side = bus.master
@@ -20,8 +23,24 @@ system.cpu = TimingSimpleCPU()
 
 system.membus = SystemXBar()
 
-system.cpu.icache_port = system.membus.slave
-system.cpu.dcache_port = system.membus.slave
+system.cpu.icache = L1ICache()
+system.cpu.dcache = L1DCache()
+
+system.cpu.icache.connectCPU(system.cpu)
+system.cpu.dcache.connectCPU(system.cpu)
+
+system.l2bus = L2XBar()
+
+system.cpu.icache.connectBus(system.l2bus)
+system.cpu.dcache.connectBus(system.l2bus)
+
+system.l2cache = L2Cache()
+system.l2cache.connectCPUSideBus(system.l2bus)
+
+system.l2cache.connectMemSideBus(system.membus)
+
+#system.cpu.icache_port = system.membus.slave
+#system.cpu.dcache_port = system.membus.slave
 
 #memobject1.master = memobject2.slave
 
